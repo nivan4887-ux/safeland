@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { connectMongo } from "@/lib/mongodb";
+import AlertDispatch from "@/models/AlertDispatch";
+const schema=z.object({targetArea:z.string().min(2),severity:z.enum(["LOW","MEDIUM","HIGH","CRITICAL"]),message:z.string().min(8),recipients:z.array(z.enum(["Authorities","Citizens","Emergency Teams"])).min(1),channels:z.array(z.enum(["SMS","WhatsApp","Siren"])).min(1)});
+export async function POST(request:Request){const p=schema.safeParse(await request.json());if(!p.success)return NextResponse.json({error:"Invalid dispatch request"},{status:400});const payload={...p.data,timestamp:new Date()};try{const db=await connectMongo();if(db){const saved=await AlertDispatch.create(payload);return NextResponse.json(saved,{status:201});}}catch{}return NextResponse.json({id:`DSP-${Date.now()}`,...payload,simulated:true},{status:202});}

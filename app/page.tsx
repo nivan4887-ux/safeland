@@ -1,0 +1,3 @@
+import "leaflet/dist/leaflet.css";
+import Dashboard from "@/components/Dashboard";
+export default function Page(){return <Dashboard/>}
